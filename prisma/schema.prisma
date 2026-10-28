@@ -9,16 +9,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
+model Planta {
   id            Int           @id @default(autoincrement())
-  nome          String        
-  conta         Conta
-  documento     String        @unique
+  nome          String
+  especie       String
+  preco         Int
+  estoque       Int
+  luminosidade  Luminosidade
+  petFriendly   Boolean
+  regaACadaDias Int
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 }
 
-enum Conta {
-  CPF
-  CNPJ
+enum Luminosidade {
+  SOMBRA
+  MEIA_SOMBRA
+  SOL_PLENO
 }
