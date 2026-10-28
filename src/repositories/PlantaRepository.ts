@@ -57,14 +57,16 @@ export const vendaById = async (id: number, quantidade: number) => {
 }
 
 export const getValorTotal = async () => {
-  const { _sum: { estoque, preco } } = await prisma.planta.aggregate({
-    _sum: {
-      estoque: true,
-      preco: true
+  const plantas = await prisma.planta.findMany({
+    select: {
+      preco: true,
+      estoque: true
     }
   });
 
-  return (estoque as number) * (preco as number);
+  const valorTotal = plantas.reduce((sum, planta) => sum += Number(planta.estoque) * Number(planta.preco), 0);
+
+  return valorTotal;
 }
 
 export const getTotalVasos = async () => {
