@@ -120,3 +120,70 @@ export const findById = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Erro ao criar planta." });
   }
 }
+
+export const updateById = async (req: Request, res: Response) => {
+  try {
+    const id = Number(req.params.id);
+    const data = req.body;
+    const planta = PlantaRepository.findById(id);
+
+    if (!planta) {
+      return res.status(404).json({ message: "Planta não encontrada." });
+    }
+
+    if (data?.preco < 0) {
+      return res.status(400).json({
+        message: "Informe um preço válido.",
+      });
+    }
+
+    if (data?.regaACadaDias < 1) {
+      return res.status(400).json({
+        message: "Informe um intervalo de regagem válido.",
+      });
+    }
+     
+    if (data?.estoque < 0) {
+      return res.status(400).json({
+        message: "Informe um valor de estoque válido.",
+      });
+    }
+
+    if (data?.luminosidade && !["SOMBRA", "MEIA_SOMBRA", "SOL_PLENO"].includes(data?.luminosidade as string)) {
+      return res.status(400).json({
+        message: "Informe um valor de luminosidade válido.",
+      });
+    }
+
+    if (data?.petFriendly && typeof(data?.petFriendly) !== "boolean") {
+      return res.status(400).json({
+        message: "Informe um valor de pet-friendly válido.",
+      });
+    }
+
+    const plantaUpdated = await PlantaRepository.updateById(id, {
+      ...data
+    })
+
+    return res.status(200).json(plantaUpdated);
+  } catch (error) {
+    return res.status(500).json({ message: "Erro ao atualizar planta." });
+  }
+}
+
+export const deleteById = async (req: Request, res: Response) => {
+  try {
+    const id = Number(req.params.id);
+    const planta = await PlantaRepository.findById(id);
+
+    if (!planta) {
+      return res.status(404).json({ message: "Planta não encontrada." });
+    }
+
+    await PlantaRepository.deleteById(id);
+    return res.status(204).send();
+  } catch (error) {
+    return res.status(500).json({ message: "Erro ao deletar planta." });
+  }
+}
+
