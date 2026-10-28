@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import * as PlantaRepository from "@repositories/PlantaRepository";
 import { toBool } from "../utils";
+import { Prisma } from "@prisma/client";
 
 
 export const create = async (req: Request, res: Response) => {
@@ -201,10 +202,27 @@ export const vender = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Sem estoque suficiente." });
     }
 
+    if (quantidade < 1) {
+      return res.status(400).json({ message: "Deve comprar pelo menos uma unidade." });
+    }
+
     const plantaUpdated = await PlantaRepository.vendaById(id, quantidade);
 
     return res.status(200).json(plantaUpdated)
-    
+  } catch (error) {
+    return res.status(500).json({ message: "Erro ao vender a planta." });
+  }
+}
+
+export const getTotal = async (req: Request, res: Response) => {
+  try {
+    const valorTotalEmCentavos = await PlantaRepository.getValorTotal();
+    const totalDeVasos = await PlantaRepository.getTotalVasos();
+
+    return res.status(200).json({
+      valorTotalEmCentavos,
+      totalDeVasos
+    });
   } catch (error) {
     return res.status(500).json({ message: "Erro ao vender a planta." });
   }
