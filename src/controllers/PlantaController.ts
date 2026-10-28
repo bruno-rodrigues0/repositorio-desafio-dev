@@ -67,3 +67,56 @@ export const create = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Erro ao criar planta." });
   }
 };
+
+
+export const findMany = async (req: Request, res: Response) => {
+  try {
+    const { page, take, luminosidade, petFriendly, disponivel } = req.query;
+
+    if (luminosidade && !["SOMBRA", "MEIA_SOMBRA", "SOL_PLENO"].includes(luminosidade as string)) {
+      return res.status(400).json({
+        message: "Informe um filtro de luminosidade válido.",
+      });
+    }
+
+    if (petFriendly && toBool(petFriendly as string) === null) {
+      return res.status(400).json({
+        message: "Informe um filtro de pet-friendly válido.",
+      });
+    }
+
+    if (disponivel && toBool(disponivel as string) === null) {
+      return res.status(400).json({
+        message: "Informe um filtro de disponibilidade válido.",
+      });
+    }
+
+    const filter = {
+      luminosidade: (luminosidade as "SOMBRA" | "MEIA_SOMBRA" | "SOL_PLENO" | undefined),
+      petFriendly: petFriendly ? toBool(petFriendly as string) as boolean : undefined,
+      disponivel: disponivel ? toBool(disponivel as string) as boolean : undefined,
+    };
+
+    const plantas = await PlantaRepository.findMany(Number(page), Number(take), filter)
+
+    return res.status(200).json(plantas)
+  } catch (error) {
+    return res.status(500).json({ message: "Erro ao ler as plantas." });
+  }
+}
+
+export const findById = async (req: Request, res: Response) => {
+  try {
+    const id = Number(req.params.id);
+    const planta = await PlantaRepository.findById(id);
+
+    if (!planta) {
+      return res.status(404).json({ message: "Planta não encontrada." });
+    }
+
+    return res.status(200).json(planta);
+
+  } catch (error) {
+    return res.status(500).json({ message: "Erro ao criar planta." });
+  }
+}
