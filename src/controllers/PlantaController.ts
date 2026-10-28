@@ -97,9 +97,9 @@ export const findMany = async (req: Request, res: Response) => {
       disponivel: disponivel ? toBool(disponivel as string) as boolean : undefined,
     };
 
-    const plantas = await PlantaRepository.findMany(Number(page), Number(take), filter)
+    const plantas = await PlantaRepository.findMany(Number(page), Number(take), filter);
 
-    return res.status(200).json(plantas)
+    return res.status(200).json(plantas);
   } catch (error) {
     return res.status(500).json({ message: "Erro ao ler as plantas." });
   }
@@ -163,7 +163,7 @@ export const updateById = async (req: Request, res: Response) => {
 
     const plantaUpdated = await PlantaRepository.updateById(id, {
       ...data
-    })
+    });
 
     return res.status(200).json(plantaUpdated);
   } catch (error) {
@@ -187,3 +187,25 @@ export const deleteById = async (req: Request, res: Response) => {
   }
 }
 
+export const vender = async (req: Request, res: Response) => {
+  try {
+    const id = Number(req.params?.id);
+    const { quantidade } = req.body
+    const planta = await PlantaRepository.findById(id);
+
+    if (!planta) {
+      return res.status(404).json({ message: "Planta não encontrada." });
+    }
+
+    if (quantidade > planta.estoque) {
+      return res.status(400).json({ message: "Sem estoque suficiente." });
+    }
+
+    const plantaUpdated = await PlantaRepository.vendaById(id, quantidade);
+
+    return res.status(200).json(plantaUpdated)
+    
+  } catch (error) {
+    return res.status(500).json({ message: "Erro ao vender a planta." });
+  }
+}
