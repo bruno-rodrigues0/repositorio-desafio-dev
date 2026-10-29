@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import * as PlantaRepository from "@repositories/PlantaRepository";
 import { toBool } from "../utils";
+import { Luminosidade } from "@prisma/client";
+import { parentPort } from "worker_threads";
 
 
 export const create = async (req: Request, res: Response) => {
@@ -103,7 +105,12 @@ export const findMany = async (req: Request, res: Response) => {
       disponivel: disponivel ? toBool(disponivel as string) as boolean : undefined,
     };
 
-    const plantas = await PlantaRepository.findMany(Number(page), Number(take), (orderBy as string), filter);
+    const plantas = await PlantaRepository.findMany(
+      Number(page) || 1,
+      Number(take) || 10,
+      (orderBy as string),
+      filter
+    );
 
     return res.status(200).json(plantas);
   } catch (error) {
@@ -229,6 +236,32 @@ export const getTotal = async (req: Request, res: Response) => {
       totalDeVasos
     });
   } catch (error) {
-    return res.status(500).json({ message: "Erro ao vender a planta." });
+    return res.status(500).json({ message: "Erro ao recuperar o valor total." });
+  }
+}
+
+export const getEsgotadas = async (req: Request, res: Response) => {
+  try {
+    const { page, take, orderBy } = req.query
+    const filter = {
+      disponivel: false,
+    };
+
+    if (orderBy !== undefined && !["nome", "especie", "preco"].includes(orderBy as string)) {
+      return res.status(400).json({
+        message: "Informe um campo de ordenação válido.",
+      });
+    }
+
+    const plantas = await PlantaRepository.findMany(
+      Number(page) || 1,
+      Number(take) || 10,
+      (orderBy as string),
+      filter
+    )
+
+    return res.status(200).json(plantas)
+  } catch (error) {
+    return res.status(500).json({ message: "Erro ao ler plantas." });
   }
 }

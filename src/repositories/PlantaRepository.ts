@@ -18,9 +18,11 @@ export const findMany = async (page: number = 1, take: number = 10, orderBy: str
     where: {
       luminosidade: filter?.luminosidade,
       petFriendly: filter?.petFriendly,
-      estoque: filter?.disponivel ? {
-        gt: 0
-      } : undefined
+      estoque: filter?.disponivel === undefined
+        ? undefined
+        : filter.disponivel
+          ? { gt: 0 }
+          : { lte: 0 }
     },
 
     orderBy: { 
