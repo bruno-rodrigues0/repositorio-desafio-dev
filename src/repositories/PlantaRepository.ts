@@ -13,14 +13,18 @@ export const create = async (data: Prisma.PlantaCreateInput) => {
   });
 }
 
-export const findMany = async (page: number = 1, take: number = 10, filter: FindManyFilterQuery) => {
+export const findMany = async (page: number = 1, take: number = 10, orderBy: string = "id", filter?: FindManyFilterQuery) => {
   return await prisma.planta.findMany({
     where: {
-      luminosidade: filter.luminosidade,
-      petFriendly: filter.petFriendly,
-      estoque: filter.disponivel ? {
+      luminosidade: filter?.luminosidade,
+      petFriendly: filter?.petFriendly,
+      estoque: filter?.disponivel ? {
         gt: 0
       } : undefined
+    },
+
+    orderBy: { 
+      [orderBy]: "asc"
     },
 
     skip: (page - 1) * take,

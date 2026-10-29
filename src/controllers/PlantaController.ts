@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import * as PlantaRepository from "@repositories/PlantaRepository";
 import { toBool } from "../utils";
-import { Prisma } from "@prisma/client";
 
 
 export const create = async (req: Request, res: Response) => {
@@ -72,23 +71,29 @@ export const create = async (req: Request, res: Response) => {
 
 export const findMany = async (req: Request, res: Response) => {
   try {
-    const { page, take, luminosidade, petFriendly, disponivel } = req.query;
+    const { page, take, luminosidade, petFriendly, disponivel, orderBy } = req.query;
 
-    if (luminosidade && !["SOMBRA", "MEIA_SOMBRA", "SOL_PLENO"].includes(luminosidade as string)) {
+    if (luminosidade !== undefined && !["SOMBRA", "MEIA_SOMBRA", "SOL_PLENO"].includes(luminosidade as string)) {
       return res.status(400).json({
         message: "Informe um filtro de luminosidade válido.",
       });
     }
 
-    if (petFriendly && toBool(petFriendly as string) === null) {
+    if (petFriendly !== undefined && toBool(petFriendly as string) === null) {
       return res.status(400).json({
         message: "Informe um filtro de pet-friendly válido.",
       });
     }
 
-    if (disponivel && toBool(disponivel as string) === null) {
+    if (disponivel !== undefined && toBool(disponivel as string) === null) {
       return res.status(400).json({
         message: "Informe um filtro de disponibilidade válido.",
+      });
+    }
+
+    if (orderBy !== undefined && !["nome", "especie", "preco"].includes(orderBy as string)) {
+      return res.status(400).json({
+        message: "Informe um campo de ordenação válido.",
       });
     }
 
@@ -98,7 +103,7 @@ export const findMany = async (req: Request, res: Response) => {
       disponivel: disponivel ? toBool(disponivel as string) as boolean : undefined,
     };
 
-    const plantas = await PlantaRepository.findMany(Number(page), Number(take), filter);
+    const plantas = await PlantaRepository.findMany(Number(page), Number(take), (orderBy as string), filter);
 
     return res.status(200).json(plantas);
   } catch (error) {
