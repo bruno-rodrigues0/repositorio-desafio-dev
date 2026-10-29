@@ -3,11 +3,15 @@
   "version": "1.0.0",
   "private": true,
   "license": "MIT",
+  "prisma": {
+    "seed": "node -r ts-node/register -r tsconfig-paths/register prisma/seeds.ts"
+  },
   "scripts": {
     "dev": "concurrently \"ts-node-dev --poll --exit-child -r tsconfig-paths/register --respawn --transpile-only --ignore-watch node_modules --no-notify src/server.ts\" \"prisma generate --watch\"",
     "generate": "prisma generate",
     "migration": "cross-env DATABASE_HOST=localhost prisma migrate dev",
     "migration:deploy": "prisma migrate deploy",
+    "seed": "cross-env DATABASE_HOST=localhost prisma db seed",
     "studio": "cross-env DATABASE_HOST=localhost prisma studio",
     "typecheck": "tsc --noEmit",
     "build": "swc src --strip-leading-paths --out-dir dist",
