@@ -13,7 +13,7 @@ export const create = async (req: Request, res: Response) => {
 
     if (
       !nome || !especie || !preco ||
-      !estoque || !luminosidade ||
+      estoque === undefined || estoque === null || !luminosidade ||
       !String(petFriendly) || !regaACadaDias
     ) {
       return res.status(400).json({
@@ -21,7 +21,7 @@ export const create = async (req: Request, res: Response) => {
       });
     }
 
-    if (preco < 0) {
+    if (preco < 0 || !Number.isInteger(preco)) {
       return res.status(400).json({
         message: "Informe um preço válido.",
       });
@@ -33,7 +33,7 @@ export const create = async (req: Request, res: Response) => {
       });
     }
      
-    if (estoque < 0) {
+    if (estoque < 0 || !Number.isInteger(estoque)) {
       return res.status(400).json({
         message: "Informe um valor de estoque válido.",
       });
