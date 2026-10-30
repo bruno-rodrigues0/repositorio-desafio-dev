@@ -97,7 +97,7 @@ export const getTotalVasos = async () => {
     }
   });
 
-  return estoque;
+  return estoque ?? 0;
 }
 
 
