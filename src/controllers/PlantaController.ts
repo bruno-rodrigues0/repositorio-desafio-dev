@@ -136,7 +136,7 @@ export const updateById = async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id);
     const data = req.body;
-    const planta = PlantaRepository.findById(id);
+    const planta = await PlantaRepository.findById(id);
 
     if (!planta) {
       return res.status(404).json({ message: "Planta não encontrada." });
