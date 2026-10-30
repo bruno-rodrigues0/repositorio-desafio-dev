@@ -71,7 +71,7 @@ export const create = async (req: Request, res: Response) => {
 
 export const findMany = async (req: Request, res: Response) => {
   try {
-    const { page, take, luminosidade, petFriendly, disponivel, orderBy } = req.query;
+    const { page, take, nome, luminosidade, petFriendly, disponivel, orderBy } = req.query;
 
     if (luminosidade !== undefined && !["SOMBRA", "MEIA_SOMBRA", "SOL_PLENO"].includes(luminosidade as string)) {
       return res.status(400).json({
@@ -98,6 +98,7 @@ export const findMany = async (req: Request, res: Response) => {
     }
 
     const filter = {
+      nome: nome as string,
       luminosidade: (luminosidade as "SOMBRA" | "MEIA_SOMBRA" | "SOL_PLENO" | undefined),
       petFriendly: petFriendly ? toBool(petFriendly as string) as boolean : undefined,
       disponivel: disponivel ? toBool(disponivel as string) as boolean : undefined,

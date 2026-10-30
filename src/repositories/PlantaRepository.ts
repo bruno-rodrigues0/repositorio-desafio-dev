@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client"
 import prisma from "@database"
 
 type FindManyFilterQuery = {
+  nome?: string
   luminosidade?: "SOMBRA" | "MEIA_SOMBRA" | "SOL_PLENO"
   petFriendly?: boolean
   disponivel?: boolean
@@ -16,6 +17,9 @@ export const create = async (data: Prisma.PlantaCreateInput) => {
 export const findMany = async (page: number = 1, take: number = 10, orderBy: string = "id", filter?: FindManyFilterQuery) => {
   return await prisma.planta.findMany({
     where: {
+      nome: filter?.nome 
+        ? { contains: filter.nome as string, mode: "insensitive"}
+        : undefined,
       luminosidade: filter?.luminosidade,
       petFriendly: filter?.petFriendly,
       estoque: filter?.disponivel === undefined
