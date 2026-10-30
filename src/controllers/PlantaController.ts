@@ -1,8 +1,6 @@
 import { Request, Response } from "express";
 import * as PlantaRepository from "@repositories/PlantaRepository";
 import { toBool } from "../utils";
-import { Luminosidade } from "@prisma/client";
-import { parentPort } from "worker_threads";
 
 
 export const create = async (req: Request, res: Response) => {
@@ -204,21 +202,22 @@ export const vender = async (req: Request, res: Response) => {
   try {
     const id = Number(req.params?.id);
     const { quantidade } = req.body
-    const planta = await PlantaRepository.findById(id);
 
-    if (!planta) {
-      return res.status(404).json({ message: "Planta não encontrada." });
-    }
-
-    if (quantidade > planta.estoque) {
-      return res.status(400).json({ message: "Sem estoque suficiente." });
-    }
-
-    if (quantidade < 1) {
+    if (!Number.isInteger(quantidade) || quantidade < 1) {
       return res.status(400).json({ message: "Deve comprar pelo menos uma unidade." });
     }
 
     const plantaUpdated = await PlantaRepository.vendaById(id, quantidade);
+
+    if (!plantaUpdated) {
+      const planta = await PlantaRepository.findById(id);
+
+      if (!planta) {
+        return res.status(404).json({ message: "Planta não encontrada." });
+      }
+
+      return res.status(400).json({ message: "Sem estoque suficiente." });
+    }
 
     return res.status(200).json(plantaUpdated)
   } catch (error) {

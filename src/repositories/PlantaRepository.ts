@@ -54,11 +54,22 @@ export const deleteById = async (id: number) => {
 }
 
 export const vendaById = async (id: number, quantidade: number) => {
-  return await prisma.planta.update({
-    where: { id },
+  const { count } = await prisma.planta.updateMany({
+    where: {
+      id,
+      estoque: { gte: quantidade }
+    },
     data: {
       estoque: { decrement: quantidade }
     }
+  });
+
+  if (count === 0) {
+    return null;
+  }
+
+  return await prisma.planta.findUnique({
+    where: { id }
   });
 }
 
